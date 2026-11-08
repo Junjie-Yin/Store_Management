@@ -1,0 +1,176 @@
+@startuml
+title Simplified UML Diagram - CLI Application
+
+' =====================
+' PACKAGES
+' =====================
+package app {
+    class App{
+        +main()
+    }
+
+    class DependencyInjector{
+        +run()
+    }
+
+    package services {
+        class UserService {
+            +create(user : User) : User
+            +read(id : Integer) : User
+            +delete(id : Integer) : void
+        }
+    }
+
+    package presentation {
+        class ErrorHandler
+
+        package cli {
+            class CommandLineInterface{
+                +help()
+            }
+
+            interface Command {
+                +name : String
+                +params() : List<String>
+                +helpMessage() : String
+                +execute(String[] params)
+            }
+            package commands{
+                class ListOrders
+                class CreateUser
+                class Exit
+                class Help
+            }
+        }
+
+        package view {
+            class View
+            enum AnsiCode
+        }
+    }
+
+    package data{
+        package models {
+            class Entity{
+                -id : Integer
+            }
+
+            class ShoppingCart{
+                -creationDate : LocalDateTime
+                -user : User
+                -article : Article
+                -amount : Integer
+                -discount : Double
+            }
+
+            package userPack {
+                class User {
+                 -email : String
+                 -name : String
+                 -firstSurname : String
+                 -secondSurname : String
+                 -dni : String
+                 -role : Role
+                }
+                class UserBuilder <<Builder>>{
+                 -id : Integer
+                 -email : String
+                 -name : String
+                 -firstSurname : String
+                 -secondSurname : String
+                 -dni : String
+                 -role : Role
+                }
+                enum Role
+            }
+
+            class Article {
+                -barcode : String
+                -name : String
+                -price : Double
+                -registrationDate : LocalDate
+                -provider : String
+                -stock : Integer
+            }
+        }
+
+        package repositories{
+            interface GenericRepository {
+                +create(entity : T) : T
+                +update(id : Integer, entity : T) : T
+                +read(id : Integer) : Optional<T>
+                +delete(id : Integer)
+                +findAll() : List<T>
+                +clear() : void
+                +size() : int
+            }
+
+            interface UserRepository {
+                +findByEmail(email : String) : Optional<User>
+                +findByDni(dni : String) : Optional<User>
+                +findByRole(role : Role) : List<User>
+            }
+
+            package map{
+                class GenericRepositoryMap {
+                    +create(entity : T) : T
+                    +update(id : Integer, entity : T) : T
+                    +read(id : Integer) : Optional<T>
+                    +delete(id : Integer)
+                    +findAll() : List<T>
+                    +clear() : void
+                    +size() : int
+                }
+
+                class UserRepositoryMap {
+                    +findByEmail(email : String) : Optional<User>
+                    +findByDni(dni : String) : Optional<User>
+                    +findByRole(role : Role) : List<User>
+                }
+            }
+        }
+
+    }
+}
+
+
+
+' =====================
+' RELATIONS
+' =====================
+
+' Associations
+    CommandLineInterface --> View
+
+    CreateUser --> UserService
+    ListOrders --> UserService
+
+    UserService --> UserRepository
+
+' Inheritances
+    Entity <|-- ShoppingCart
+    Entity <|-- User
+    Entity <|-- Article
+
+    GenericRepositoryMap <|-- UserRepositoryMap
+    GenericRepository <|-- UserRepository
+
+' Implementations
+    Command <|.. ListOrders
+    Command <|.. CreateUser
+    Command <|.. Exit
+    Command <|.. Help
+
+    UserRepository <|.. UserRepositoryMap
+    GenericRepository <|.. GenericRepositoryMap
+
+' Aggregations
+    User "1" --0 "n" ShoppingCart
+    Article "n" --0 "1" ShoppingCart
+
+    CommandLineInterface "1" 0-- "n" Command
+
+' Compositions
+    User "1"*--"1" UserBuilder
+
+@enduml

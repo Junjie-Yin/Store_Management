@@ -1,0 +1,32 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: mysql-server
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: poodb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+    name: "mysql-data"
+
+# Construir Bases de Datos
+#> docker compose -p databases up -d
+
+# CONSOLA & COMANDOS MySQL
+#> docker exec -it mysql-server mysql -u root -p
+
+#  show databases;
+#  create database poo;
+#  drop database poo;
+#  use poo;
+#  show tables;
+#  describe mytable;
+#  select * from mytable;
+#  drop table mytable;
+#  exit
